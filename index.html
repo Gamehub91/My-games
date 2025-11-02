@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Launcher</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* New Animated Background Gradient (Black to Purple) */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .main-page {
+            min-height: 100vh;
+            /* New Purple-Black Animated Background */
+            background: linear-gradient(-45deg, #1c1c1c 0%, #4a148c 50%, #1c1c1c 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Enhanced Text Animation */
+        @keyframes textGlow {
+            0%, 100% { text-shadow: 0 0 10px #e0f7fa, 0 0 20px #80d8ff, 0 0 30px #40c4ff; }
+            50% { text-shadow: 0 0 20px #fff, 0 0 40px #ff00ff, 0 0 60px #8e24aa; }
+        }
+
+        .welcome-text {
+            font-size: clamp(2rem, 8vw, 3.5rem); /* Responsive size */
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            animation: textGlow 1.5s infinite alternate;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .subtitle-text {
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .game-grid {
+            width: 95%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Adjusted for mobile */
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+
+        /* New Game Card Styling */
+        .game-card {
+            background: rgba(142, 36, 170, 0.3); /* Transparent purple */
+            border-radius: 15px;
+            height: 150px; /* Adjusted height */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px) scale(1.05);
+            background: rgba(186, 104, 200, 0.4); /* Lighter hover purple */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), 0 0 20px #ff00ff;
+            border-color: #ff00ff;
+        }
+
+        .game-icon {
+            font-size: 2.5rem; /* Slightly smaller icon for better mobile fit */
+            margin-bottom: 10px;
+            transition: transform 0.3s ease;
+        }
+        
+        .game-card:hover .game-icon {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        .game-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #1c1c1c 0%, #4a148c 100%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        .control-button {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+            border: none;
+            font-size: 1rem;
+            /* Button styling to match new theme */
+            background: linear-gradient(45deg, #7b1fa2, #ab47bc);
+            box-shadow: 0 4px #5c007a;
+        }
+
+        .btn-exit {
+            background: linear-gradient(45deg, #c0392b, #e74c3c);
+            box-shadow: 0 4px #a00000;
+        }
+
+        .control-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-content {
+            width: 95%; /* Increased width for mobile */
+            max-width: 650px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            color: #333;
+            min-height: 400px;
+        }
+
+        .game-title {
+            font-size: clamp(1.5rem, 6vw, 2rem);
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4a148c;
+        }
+
+        .status-text {
+            text-align: center;
+            font-size: clamp(1rem, 4vw, 1.3rem);
+            margin: 20px 0;
+            font-weight: bold;
+            color: #7b1fa2;
+        }
+        .game-button {
+            padding: 12px 30px;
+            background: linear-gradient(45deg, #7b1fa2, #ab47bc);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px #5c007a;
+        }
+        .game-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px #5c007a;
+        }
+
+        /* --- RPS Specific (Enlarged for touch) --- */
+        .rps-options {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .rps-choice {
+            font-size: 5rem; /* Maintained large size */
+            cursor: pointer;
+            padding: 15px;
+            border: 3px solid #7b1fa2;
+            border-radius: 15px;
+            transition: background 0.2s, transform 0.2s;
+            width: 100px; /* Ensure a decent touch target */
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .rps-choice:hover {
+            background: #ab47bc;
+            transform: scale(1.1);
+        }
+
+        /* --- Clicker Specific (Enlarged for touch) --- */
+        .clicker-display {
+            font-size: 5rem; /* Maintained large size */
+            font-weight: bold;
+            text-align: center;
+            color: #7b1fa2;
+            margin: 30px 0;
+            padding: 20px;
+            border: 5px dashed #ab47bc;
+            border-radius: 20px;
+        }
+        .clicker-button {
+            width: 80%;
+            max-width: 300px;
+            padding: 20px;
+            font-size: 1.5rem;
+        }
+        
+        /* --- Secret Box Specific --- */
+        .password-container {
+            text-align: center;
+            margin-top: 50px;
+        }
+        .password-input {
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 3px solid #4a148c;
+            border-radius: 10px;
+            text-align: center;
+            width: 90%;
+            max-width: 250px;
+            margin-bottom: 20px;
+        }
+        .secret-content {
+            padding: 20px;
+            border: 2px dashed #4a148c;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: center;
+            color: #5c007a;
+        }
+        .secret-content h4 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        /* Gallery Grid Styling */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2x2 Grid */
+            gap: 10px;
+            margin-top: 20px;
+            max-width: 400px; /* Constrain grid size */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .image-placeholder {
+            width: 100%;
+            /* 4:3 Aspect Ratio for a nice visual */
+            padding-top: 75%; 
+            position: relative;
+            background: #ab47bc; 
+            border-radius: 8px;
+            cursor: pointer;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .image-placeholder:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        .image-placeholder img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Ensures placeholder text is visible if image fails to load */
+            color: white; 
+            text-align: center; 
+            line-height: 75%; 
+            font-size: 0.8rem;
+        }
+        /* Fullscreen Image Modal */
+        #fullscreenImageModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 3000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        #fullscreenImage {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+        }
+        #closeFullscreen {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            padding: 5px 15px;
+        }
+
+        /* --- Coin Flip Specific --- */
+        .coin-display {
+            font-size: 5rem;
+            text-align: center;
+            margin: 30px 0;
+            height: 100px;
+            transition: transform 0.5s ease-out;
+        }
+        .coin-display.flipping {
+            animation: flip 0.7s infinite;
+        }
+        @keyframes flip {
+            0% { transform: scale(1) rotateY(0deg); }
+            50% { transform: scale(0.8) rotateY(180deg); color: #fff; }
+            100% { transform: scale(1) rotateY(360deg); }
+        }
+
+        /* Footer Styling */
+        .footer {
+            width: 100%;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: auto;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+            line-height: 1.5;
+        }
+        .footer .credit-line {
+            font-family: 'Altaic', sans-serif;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #ffccff; /* Light purple for emphasis */
+            margin-bottom: 5px;
+        }
+
+        /* --- FIX: Tic-Tac-Toe Cell Size Issue --- */
+        .ttt-cell > * {
+            display: inline-block;
+            /* Ensures the content doesn't change the box model size calculation dramatically */
+            pointer-events: none;
+            /* Prevents the content inside from interfering with the cell's click handler */
+        }
+        
+        /* --- FIX: Catch The Dot Visibility --- */
+        .dot {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            /* Added background color for visibility */
+            background-color: #e74c3c; 
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease-out;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div id="customModal" class="message-box" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 80%; text-align: center;">
+            <h3 id="modalTitle" style="color: #4a148c; margin-bottom: 10px;">Alert</h3>
+            <p id="modalText" style="color: #333; margin-bottom: 20px;">Message goes here.</p>
+            <button onclick="document.getElementById('customModal').style.display='none'" class="control-button" style="background: #7b1fa2; box-shadow: 0 4px #5c007a;">OK</button>
+        </div>
+    </div>
+    
+    <div id="fullscreenImageModal" style="display: none;">
+        <span id="closeFullscreen" onclick="closeFullscreenImage()">&times;</span>
+        <img id="fullscreenImage" src="" alt="Full Screen Image">
+    </div>
+
+    <div id="mainPage" class="main-page">
+        <div class="welcome-text">Game Hub</div>
+        <div class="subtitle-text">Choose Your Adventure</div>
+
+        <div class="game-grid">
+            <div class="game-card" onclick="launchGame('snake')">
+                <i class="game-icon fas fa-gamepad"></i>
+                <div>Snake Classic</div>
+            </div>
+            
+            <div class="game-card" onclick="launchGame('tictactoe')">
+                <i class="game-icon fas fa-times-circle"></i>
+                <div>Tic-Tac-Toe</div>
+            </div>
+            
+            <div class="game-card" onclick="launchGame('whack')">
+                <i class="game-icon fas fa-square"></i>
+                <div>Whack-a-Block</div>
+            </div>
+            
+            <div class="game-card" onclick="launchGame('guess')">
+                <i class="game-icon fas fa-question-circle"></i>
+                <div>Guess The Number</div>
+            </div>
+            
+            <div class="game-card" onclick="launchGame('clicker')">
+                <i class="game-icon fas fa-hand-pointer"></i>
+                <div>Simple Clicker</div>
+            </div>
+
+            <div class="game-card" onclick="launchGame('memory')">
+                <i class="game-icon fas fa-brain"></i>
+                <div>Memory Match</div>
+            </div>
+            
+            <div class="game-card" onclick="launchGame('rps')">
+                <i class="game-icon fas fa-hand-rock"></i>
+                <div>Rock Paper Scissors</div>
+            </div>
+
+            <div class="game-card" onclick="launchGame('catch')">
+                <i class="game-icon fas fa-bullseye"></i>
+                <div>Catch the Dot</div>
+            </div>
+            
+            <div class="game-card" onclick="launchGame('dice')">
+                <i class="game-icon fas fa-dice-d6"></i>
+                <div>Dice Roll</div>
+            </div>
+
+            <div class="game-card" onclick="launchGame('coinflip')">
+                <i class="game-icon fas fa-coins"></i>
+                <div>Coin Flip</div>
+            </div>
+
+            <div class="game-card" onclick="launchGame('secret')">
+                <i class="game-icon fas fa-lock"></i>
+                <div>Secret</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="credit-line">
+                Written by Zarnab Directed by Azhaan & Arham
+            </div>
+            &copy; 2024 Game Hub. All copyrights are strictly reserved.
+        </div>
+    </div>
+
+    <div id="gamePage" class="game-page">
+        <div class="game-controls">
+            <button class="control-button btn-fullscreen" onclick="toggleFullscreen()">Full Screen</button>
+            <button class="control-button btn-exit" onclick="exitGame()">Exit Game</button>
+        </div>
+        <div class="game-content" id="gameContent"></div>
+    </div>
+    
+    <script>
+        const mainPage = document.getElementById('mainPage');
+        const gamePage = document.getElementById('gamePage');
+        const gameContent = document.getElementById('gameContent');
+        const SECRET_PASSWORD = '804'; 
+        
+        // NEW: Array for the image sources in the Secret Box gallery
+        // I've used placeholder images as the uploaded image URL is a local reference 
+        // that won't display in this environment. Replace these with your actual image URLs.
+        const SECRET_IMAGES = [
+            "https://i.ibb.co/jZgy7ZN7/IMG-20251102-053306.jpg",
+            "https://i.ibb.co/5xtg85Pd/IMG-20251102-053248.jpg",
+            "https://i.ibb.co/rf3R539k/IMG-20251101-00130567.jpg",
+            "https://placehold.co/400x300/ab47bc/ffffff?text=Image+4"  // Placeholder 4
+        ];
+        
+        // Game state variables
+        let currentGame = null;
+        let snakeInterval = null;
+        let whackInterval = null;
+        let memoryTimeout = null;
+        let dotTimeout = null;
+        let diceInterval = null;
+        let coinInterval = null;
+
+
+        // Utility function for custom alerts (since alert() is forbidden)
+        function showMessage(title, text) {
+            const modal = document.getElementById('customModal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalText').textContent = text;
+            modal.style.display = 'flex';
+        }
+        
+        function hideMessage() {
+            document.getElementById('customModal').style.display = 'none';
+        }
+        
+        // NEW: Fullscreen image viewer functions
+        function openFullscreenImage(src) {
+            document.getElementById('fullscreenImage').src = src;
+            document.getElementById('fullscreenImageModal').style.display = 'flex';
+        }
+
+        function closeFullscreenImage() {
+            document.getElementById('fullscreenImageModal').style.display = 'none';
+            document.getElementById('fullscreenImage').src = '';
+        }
+
+        function launchGame(gameType) {
+            currentGame = gameType;
+            mainPage.style.display = 'none';
+            gamePage.style.display = 'flex';
+
+            // Reset any active intervals/timeouts before launching a new game
+            if (snakeInterval) clearInterval(snakeInterval);
+            if (whackInterval) clearInterval(whackInterval);
+            if (memoryTimeout) clearTimeout(memoryTimeout);
+            if (dotTimeout) clearTimeout(dotTimeout);
+            if (diceInterval) clearInterval(diceInterval);
+            if (coinInterval) clearInterval(coinInterval);
+            
+            gameContent.innerHTML = ''; // Clear previous game content
+            document.onkeydown = null; // Remove keydown listener by default
+
+            switch(gameType) {
+                case 'snake':
+                    initSnake();
+                    break;
+                case 'tictactoe':
+                    initTicTacToe();
+                    break;
+                case 'whack':
+                    initWhack();
+                    break;
+                case 'guess':
+                    initGuess();
+                    break;
+                case 'clicker':
+                    initClicker();
+                    break;
+                case 'memory':
+                    initMemoryMatch();
+                    break;
+                case 'rps':
+                    initRockPaperScissors();
+                    break;
+                case 'catch':
+                    initCatchTheDot();
+                    break;
+                case 'dice':
+                    initDiceRoll();
+                    break;
+                case 'coinflip':
+                    initCoinFlip();
+                    break;
+                case 'secret':
+                    initSecretBox();
+                    break;
+            }
+        }
+
+        function exitGame() {
+            if (snakeInterval) clearInterval(snakeInterval);
+            if (whackInterval) clearInterval(whackInterval);
+            if (memoryTimeout) clearTimeout(memoryTimeout);
+            if (dotTimeout) clearTimeout(dotTimeout);
+            if (diceInterval) clearInterval(diceInterval);
+            if (coinInterval) clearInterval(coinInterval);
+            gamePage.style.display = 'none';
+            mainPage.style.display = 'flex';
+            gameContent.innerHTML = '';
+            document.onkeydown = null; 
+            hideMessage(); // Hide modal on exit
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+            closeFullscreenImage(); // Close any open fullscreen image
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // --- SNAKE GAME ---
+        let snake, food, dx, dy, score, gameRunning;
+        function initSnake() {
+            gameContent.innerHTML = `
+                <div class="game-title">Snake Classic</div>
+                <div class="status-text">Score: <span id="snakeScore">0</span></div>
+                <canvas id="snakeCanvas" width="300" height="300" style="border: 2px solid #ab47bc; max-width: 100%;"></canvas>
+                <div class="text-center">
+                    <button class="game-button" onclick="startSnake()">Start Game</button>
+                </div>
+                <div class="text-center" style="margin-top: 10px; color: #666;">
+                    Use Arrow Keys (or swipe/tap directions) to Move
+                </div>
+            `;
+            // Simplified keydown listener for the active game
+            document.onkeydown = function(e) {
+                if (currentGame === 'snake' && gameRunning) { // Only allow movement when game is running
+                    if (e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -1; }
+                    else if (e.key === 'ArrowDown' && dy === 0) { dx = 0; dy = 1; }
+                    else if (e.key === 'ArrowLeft' && dx === 0) { dx = -1; dy = 0; }
+                    else if (e.key === 'ArrowRight' && dx === 0) { dx = 1; dy = 0; }
+                }
+            };
+        }
+        function startSnake() { 
+            const canvas = document.getElementById('snakeCanvas');
+            const ctx = canvas.getContext('2d');
+            const gridSize = 15; // Adjusted size for smaller canvas
+            const tileCount = canvas.width / gridSize;
+
+            snake = [{x: 10, y: 10}];
+            // FIX: Initialize dx/dy to a starting movement direction (e.g., right)
+            dx = 1; 
+            dy = 0; 
+            score = 0;
+            gameRunning = true;
+            
+            // Initial food placement
+            let newFood;
+            do {
+                newFood = {
+                    x: Math.floor(Math.random() * tileCount),
+                    y: Math.floor(Math.random() * tileCount)
+                };
+            } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
+            food = newFood;
+
+
+            document.getElementById('snakeScore').textContent = score;
+
+            if (snakeInterval) clearInterval(snakeInterval);
+            
+            // Initial draw (to show snake and food)
+            drawSnakeAndFood(canvas, ctx, gridSize, tileCount);
+
+            snakeInterval = setInterval(() => {
+                if (!gameRunning || (dx === 0 && dy === 0)) return; // Prevents movement if dx/dy is 0, 0
+
+                const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+
+                // Check for walls and self-collision
+                if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount || snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                    gameRunning = false;
+                    clearInterval(snakeInterval);
+                    showMessage('Game Over!', 'Score: ' + score);
+                    return;
+                }
+
+                snake.unshift(head);
+
+                if (head.x === food.x && head.y === food.y) {
+                    score++;
+                    document.getElementById('snakeScore').textContent = score;let newFood;
+                    do {
+                        newFood = {
+                            x: Math.floor(Math.random() * tileCount),
+                            y: Math.floor(Math.random() * tileCount)
+                        };
+                    } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
+                    food = newFood;
+
+                } else {
+                    snake.pop();
+                }
+
+                drawSnakeAndFood(canvas, ctx, gridSize, tileCount);
+            }, 150);
+        }
+
+        function drawSnakeAndFood(canvas, ctx, gridSize, tileCount) {
+            ctx.fillStyle = '#f0f0f0';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 1, gridSize - 1);
+
+            snake.forEach((segment, index) => {
+                ctx.fillStyle = index === 0 ? '#4a148c' : '#7b1fa2';
+                ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 1, gridSize - 1);
+            });
+        }
+        
+        // --- TIC-TAC-TOE ---
+        let tttBoard, tttPlayer, tttGameOver;
+        function initTicTacToe() {
+            tttBoard = ['', '', '', '', '', '', '', '', ''];
+            tttPlayer = 'X';
+            tttGameOver = false;
+
+            gameContent.innerHTML = `
+                <div class="game-title">Tic-Tac-Toe</div>
+                <div class="status-text" id="tttStatus">Current Player: X</div>
+                <style>
+                    .ttt-grid {
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        width: clamp(250px, 80vw, 300px);
+                        height: clamp(250px, 80vw, 300px);
+                        border: 3px solid #7b1fa2;
+                        border-radius: 10px;
+                        margin: 20px auto;
+                    }
+                    .ttt-cell {
+                        border: 2px solid #ab47bc;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 3rem;
+                        font-weight: bold;
+                        cursor: pointer;
+                        transition: background 0.2s;
+                        /* FIX: ensures consistent cell size by removing padding/margin interactions */
+                        box-sizing: border-box; 
+                        padding: 0;
+                        margin: 0;
+                    }
+                    .ttt-cell:hover { background-color: #f0f0f0; }
+                </style>
+                <div class="ttt-grid" id="tttGrid"></div>
+                <button class="game-button" onclick="initTicTacToe()">Reset Game</button>
+            `;
+
+            const grid = document.getElementById('tttGrid');
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'ttt-cell';
+                cell.onclick = () => tttMove(i);
+                grid.appendChild(cell);
+            }
+        }
+        function tttMove(index) {
+            if (tttGameOver || tttBoard[index] !== '') return;
+
+            tttBoard[index] = tttPlayer;
+            const cells = document.querySelectorAll('.ttt-cell');
+            cells[index].textContent = tttPlayer;
+
+            const winner = checkTttWinner();
+            const status = document.getElementById('tttStatus');
+
+            if (winner === 'Draw') {
+                status.textContent = "It's a Draw!";
+                tttGameOver = true;
+            } else if (winner) {
+                status.textContent = `Player ${winner} Wins!`;
+                tttGameOver = true;
+                const lines = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                    [0, 4, 8], [2, 4, 6]
+                ];
+                for (let line of lines) {
+                    const [a, b, c] = line;
+                    if (tttBoard[a] === winner && tttBoard[b] === winner && tttBoard[c] === winner) {
+                        cells[a].style.backgroundColor = cells[b].style.backgroundColor = cells[c].style.backgroundColor = '#e74c3c';
+                        cells[a].style.color = cells[b].style.color = cells[c].style.color = 'white';
+                        break;
+                    }
+                }
+            } else {
+                tttPlayer = tttPlayer === 'X' ? 'O' : 'X';
+                status.textContent = `Current Player: ${tttPlayer}`;
+            }
+        }
+        function checkTttWinner() {
+            const lines = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+            for (let line of lines) {
+                const [a, b, c] = line;
+                if (tttBoard[a] && tttBoard[a] === tttBoard[b] && tttBoard[a] === tttBoard[c]) {
+                    return tttBoard[a];
+                }
+            }
+            if (tttBoard.every(cell => cell !== '')) return 'Draw';
+            return null;
+        }
+
+        // --- WHACK-A-BLOCK ---
+        let whackScore, whackTime, whackActive, whackTimer;
+        function initWhack() {
+            whackScore = 0;
+            whackTime = 30;
+            whackActive = null;
+
+            gameContent.innerHTML = `
+                <div class="game-title">Whack-a-Block</div>
+                <div class="status-text">Score: <span id="whackScore">0</span> | Time: <span id="whackTime">30</span>s</div>
+                <style>
+                    .whack-grid {
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        width: clamp(250px, 80vw, 300px);
+                        height: clamp(250px, 80vw, 300px);
+                        margin: 20px auto;
+                        gap: 10px;
+                    }
+                    .whack-hole {
+                        background: #333;
+                        border-radius: 10px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 3rem;
+                        transition: background 0.2s;
+                        cursor: pointer;
+                    }
+                    .whack-hole.active {
+                        background: #ab47bc;
+                    }
+                </style>
+                <div class="whack-grid" id="whackGrid" onclick="event.target.classList.contains('whack-hole') ? whackHit(Array.from(this.children).indexOf(event.target)) : null"></div>
+                <button class="game-button" onclick="startWhack()">Start Game</button>
+            `;
+            // Populate the grid
+            const grid = document.getElementById('whackGrid');
+            for (let i = 0; i < 9; i++) {
+                const hole = document.createElement('div');
+                hole.className = 'whack-hole';
+                grid.appendChild(hole);
+            }
+        }
+        function startWhack() {
+            if (whackTimer) clearInterval(whackTimer);
+            if (whackInterval) clearInterval(whackInterval);
+            
+            whackScore = 0;
+            whackTime = 30;
+            document.getElementById('whackScore').textContent = whackScore;
+            document.getElementById('whackTime').textContent = whackTime;
+
+            whackTimer = setInterval(() => {
+                whackTime--;
+                document.getElementById('whackTime').textContent = whackTime;
+                if (whackTime <= 0) {
+                    clearInterval(whackTimer);
+                    clearInterval(whackInterval);
+                    showMessage('Game Over!', 'Final Score: ' + whackScore);
+                    document.getElementById('whackGrid').style.pointerEvents = 'none';
+                    document.querySelectorAll('.whack-hole').forEach(h => { h.classList.remove('active'); h.textContent = ''; });
+                }
+            }, 1000);
+
+            document.getElementById('whackGrid').style.pointerEvents = 'auto';
+            whackInterval = setInterval(() => {
+                const holes = document.querySelectorAll('.whack-hole');
+                if (whackActive !== null && holes[whackActive]) {
+                    holes[whackActive].classList.remove('active');
+                    holes[whackActive].textContent = '';
+                }
+                
+                whackActive = Math.floor(Math.random() * 9);
+                holes[whackActive].classList.add('active');
+                holes[whackActive].textContent = '🎯';
+            }, 800);
+        }
+        function whackHit(index) {
+            const holes = document.querySelectorAll('.whack-hole');
+            if (index === whackActive && whackTime > 0) {
+                whackScore++;
+                document.getElementById('whackScore').textContent = whackScore;
+                
+                holes[index].classList.remove('active');
+                holes[index].textContent = '💥';
+                
+                whackActive = null; 
+
+                // Reset interval immediately to place a new dot faster
+                clearInterval(whackInterval);
+                whackInterval = setInterval(() => {
+                    const currentHoles = document.querySelectorAll('.whack-hole');
+                    if (whackActive !== null && currentHoles[whackActive]) {
+                        currentHoles[whackActive].classList.remove('active');
+                        currentHoles[whackActive].textContent = '';
+                    }
+                    whackActive = Math.floor(Math.random() * 9);
+                    currentHoles[whackActive].classList.add('active');
+                    currentHoles[whackActive].textContent = '🎯';
+                }, 800);
+            }
+        }
+
+        // --- GUESS THE NUMBER ---
+        let guessTarget, guessAttempts;
+        function initGuess() {
+            guessTarget = Math.floor(Math.random() * 100) + 1;
+            guessAttempts = 0;
+
+            gameContent.innerHTML = `
+                <div class="game-title">Guess The Number</div>
+                <div class="status-text" id="guessStatus">Guess a number between 1 and 100.</div>
+                <div class="text-center">
+                    <input type="number" id="guessInput" class="password-input" min="1" max="100" placeholder="?">
+                </div>
+                <div class="text-center">
+                    <button class="game-button" onclick="makeGuess()">Guess</button>
+                    <button class="game-button" onclick="initGuess()">Reset</button>
+                </div>
+                <div class="text-center" style="margin-top: 10px; color: #666;">
+                    Attempts: <span id="guessAttempts">0</span>
+                </div>
+            `;
+        }
+        function makeGuess() {
+            const inputElement = document.getElementById('guessInput');
+            const statusElement = document.getElementById('guessStatus');
+            const attemptsElement = document.getElementById('guessAttempts');
+
+            const guess = parseInt(inputElement.value);
+
+            if (isNaN(guess) || guess < 1 || guess > 100) {
+                statusElement.textContent = "Please enter a valid number between 1 and 100.";
+                return;
+            }
+
+            guessAttempts++;
+            attemptsElement.textContent = guessAttempts;
+
+            if (guess === guessTarget) {
+                statusElement.textContent = `You Got It! The number was ${guessTarget}! It took you ${guessAttempts} attempts.`;
+                inputElement.disabled = true;
+            } else if (guess < guessTarget) {
+                statusElement.textContent = "Too Low! Try a higher number.";
+            } else {
+                statusElement.textContent = "Too High! Try a lower number.";
+            }
+
+            inputElement.value = '';
+            inputElement.focus();
+        }
+
+        // --- SIMPLE CLICKER ---
+        let clickerCount;
+        function initClicker() {
+            clickerCount = 0;
+
+            gameContent.innerHTML = `
+                <div class="game-title">Simple Clicker</div>
+                <div class="clicker-display" id="clickerCount">0</div>
+                <button class="game-button clicker-button" onclick="incrementClicker()">Click Me!</button>
+                <div class="text-center">
+                    <button class="game-button" onclick="initClicker()">Reset</button>
+                </div>
+            `;
+        }
+        function incrementClicker() {
+            clickerCount++;
+            document.getElementById('clickerCount').textContent = clickerCount;
+        }
+        
+        // --- MEMORY MATCH ---
+        const memoryIcons = ['🍎', '🍌', '🍇', '🍓', '🥝', '🍉', '🍋', '🍊'];
+        let memoryBoard, flippedCards = [], matchesFound, memoryGameActive = true;
+        function initMemoryMatch() {
+            let cards = memoryIcons.concat(memoryIcons);
+            
+            for (let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cards[i], cards[j]] = [cards[j], cards[i]];
+            }
+
+            memoryBoard = cards;
+            flippedCards = [];
+            matchesFound = 0;
+            memoryGameActive = true;
+
+            gameContent.innerHTML = `
+                <div class="game-title">Memory Match</div>
+                <div class="status-text" id="memoryStatus">Find all the pairs!</div>
+                <style>
+                    .memory-grid {
+                        display: grid;
+                        grid-template-columns: repeat(4, 1fr);
+                        grid-template-rows: repeat(4, 1fr);
+                        gap: 10px;
+                        width: clamp(250px, 80vw, 350px);
+                        height: clamp(250px, 80vw, 350px);
+                        margin: 20px auto;
+                    }
+                    .memory-card {
+                        perspective: 1000px;
+                        cursor: pointer;
+                        height: 100%;
+                        position: relative;
+                        transform-style: preserve-3d;
+                        transition: transform 0.6s;
+                    }
+                    .memory-card.flipped {
+                        transform: rotateY(180deg);
+                    }
+                    .card-face {
+                        position: absolute;
+                        width: 100%;
+                        height: 100%;
+                        backface-visibility: hidden;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 8px;
+                        font-size: clamp(1.5rem, 6vw, 2rem);
+                        font-weight: bold;
+                    }
+                    .card-back {
+                        background-color: #7b1fa2;
+                        color: white;
+                        border: 2px solid #5c007a;
+                    }
+                    .card-front {
+                        background-color: #eee;
+                        transform: rotateY(180deg);
+                        border: 2px solid #5c007a;
+                    }
+                </style>
+                <div class="memory-grid" id="memoryGrid"></div>
+                <button class="game-button" onclick="initMemoryMatch()">Reset Game</button>
+            `;
+
+            const grid = document.getElementById('memoryGrid');
+            memoryBoard.forEach((icon, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.dataset.index = index;
+                card.onclick = () => flipCard(card, icon);
+                
+                card.innerHTML = `
+                    <div class="card-face card-back"><i class="fas fa-question"></i></div>
+                    <div class="card-face card-front">${icon}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+        function flipCard(card, icon) {
+            if (!memoryGameActive || card.classList.contains('flipped') || card.classList.contains('matched') || flippedCards.length >= 2) {
+                return;
+            }
+
+            card.classList.add('flipped');
+            flippedCards.push({ card, icon });
+
+            if (flippedCards.length === 2) {
+                memoryGameActive = false;
+                const [card1, card2] = flippedCards;
+
+                if (card1.icon === card2.icon) {
+                    // Match found
+                    setTimeout(() => {
+                        card1.card.classList.add('matched');
+                        card2.card.classList.add('matched');
+                        matchesFound++;
+                        flippedCards = [];
+                        memoryGameActive = true;
+
+                        if (matchesFound === memoryIcons.length) {
+                            document.getElementById('memoryStatus').textContent = '🎉 You Matched Them All! 🎉';
+                        }
+                    }, 500);
+
+                } else {
+                    // No match
+                    memoryTimeout = setTimeout(() => {
+                        card1.card.classList.remove('flipped');
+                        card2.card.classList.remove('flipped');
+                        flippedCards = [];
+                        memoryGameActive = true;
+                    }, 1000);
+                }
+            }
+        }
+        
+        // --- ROCK PAPER SCISSORS (RPS) ---
+        let rpsScore = { win: 0, loss: 0, draw: 0 };
+        const rpsOptions = ['rock', 'paper', 'scissors'];
+        const rpsIcons = {
+            rock: '✊',
+            paper: '✋',
+            scissors: '✌️'
+        };
+        function initRockPaperScissors() {
+            rpsScore = { win: 0, loss: 0, draw: 0 };
+
+            gameContent.innerHTML = `
+                <div class="game-title">Rock Paper Scissors</div>
+                <div class="status-text" id="rpsScoreDisplay">Wins: 0 | Losses: 0 | Draws: 0</div>
+                <div class="rps-options" id="rpsOptions">
+                    <div class="rps-choice" onclick="playRPS('rock')" title="Rock">${rpsIcons.rock}</div>
+                    <div class="rps-choice" onclick="playRPS('paper')" title="Paper">${rpsIcons.paper}</div>
+                    <div class="rps-choice" onclick="playRPS('scissors')" title="Scissors">${rpsIcons.scissors}</div>
+                </div>
+                <div class="status-text" id="rpsResult">Make your choice!</div>
+                <button class="game-button" onclick="initRockPaperScissors()">Reset Score</button>
+            `;
+        }
+        function playRPS(playerChoice) {
+            const computerChoice = rpsOptions[Math.floor(Math.random() * rpsOptions.length)];
+            let result = '';
+
+            if (playerChoice === computerChoice) {
+                result = 'Draw';
+            } else if (
+                (playerChoice === 'rock' && computerChoice === 'scissors') ||
+                (playerChoice === 'paper' && computerChoice === 'rock') ||
+                (playerChoice === 'scissors' && computerChoice === 'paper')
+            ) {
+                result = 'Win';
+            } else {
+                result = 'Loss';
+            }
+
+            if (result === 'Win') rpsScore.win++;
+            else if (result === 'Loss') rpsScore.loss++;
+            else rpsScore.draw++;
+
+            const resultElement = document.getElementById('rpsResult');
+            resultElement.textContent = `You chose ${rpsIcons[playerChoice]}. Computer chose ${rpsIcons[computerChoice]}. Result: ${result}!`;
+
+            document.getElementById('rpsScoreDisplay').textContent = 
+                `Wins: ${rpsScore.win} | Losses: ${rpsScore.loss} | Draws: ${rpsScore.draw}`;
+        }
+        
+        // --- CATCH THE DOT ---
+        let catchScore, catchGameActive = false, catchTimeLimit = 15, catchTimer;
+        function initCatchTheDot() {
+            catchScore = 0;
+            catchGameActive = false;
+
+            gameContent.innerHTML = `
+                <div class="game-title">Catch the Dot</div>
+                <div class="status-text">Score: <span id="catchScore">0</span> | Time: <span id="catchTime">0</span>s</div>
+                <div id="dotArea" style="width: 100%; height: 300px; border: 3px solid #7b1fa2; border-radius: 10px; position: relative; background: #f0f0f0; margin: 20px 0; overflow: hidden;">
+                </div>
+                <button class="game-button" id="catchStartButton" onclick="startCatchGame()">Start 15s Game</button>
+            `;
+        }
+        function startCatchGame() {
+            if (catchTimer) clearInterval(catchTimer);
+            if (dotTimeout) clearTimeout(dotTimeout);
+            
+            catchScore = 0;
+            catchGameActive = true;
+            let time = catchTimeLimit;
+            document.getElementById('catchScore').textContent = catchScore;
+            document.getElementById('catchStartButton').disabled = true;
+
+            catchTimer = setInterval(() => {
+                document.getElementById('catchTime').textContent = time;
+                time--;
+                if (time < 0) {
+                    clearInterval(catchTimer);
+                    catchGameActive = false;
+                    document.getElementById('dotArea').innerHTML = '';
+                    document.getElementById('catchStartButton').disabled = false;
+                    showMessage('Time\'s Up!', 'Final Score: ' + catchScore);
+                    document.getElementById('catchTime').textContent = 0;
+                }
+            }, 1000);
+
+            placeNewDot();
+        }
+        function placeNewDot() {
+            if (!catchGameActive) return;
+
+            const area = document.getElementById('dotArea');
+            area.innerHTML = '';
+            
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            dot.onclick = () => dotHit(dot);
+
+            const areaWidth = area.clientWidth;
+            const areaHeight = area.clientHeight;
+            const dotSize = 40;
+
+            // Ensure dot is within bounds
+            const maxX = areaWidth - dotSize;
+            const maxY = areaHeight - dotSize;
+            
+            // Check for very small area
+            if (maxX < 0 || maxY < 0) {
+                // Cannot place dot, stop game or use a placeholder
+                area.textContent = "Area is too small to place dot.";
+                return;
+            }
+
+            dot.style.left = Math.random() * maxX + 'px';
+            dot.style.top = Math.random() * maxY + 'px';
+
+            area.appendChild(dot);
+            
+            if (dotTimeout) clearTimeout(dotTimeout);
+            dotTimeout = setTimeout(() => {
+                if (dot.parentNode) {
+                    dot.parentNode.removeChild(dot);
+                    placeNewDot();
+                }
+            }, 1500);
+        }
+        function dotHit(dotElement) {
+            if (!catchGameActive) return;
+            
+            catchScore++;
+            document.getElementById('catchScore').textContent = catchScore;
+            
+            dotElement.parentNode.removeChild(dotElement);
+            clearTimeout(dotTimeout);
+            placeNewDot();
+        }
+
+        // --- DICE ROLL ---
+        const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+        function initDiceRoll() {
+            gameContent.innerHTML = `
+                <div class="game-title">Dice Roll Simulator</div>
+                <div class="coin-display" id="diceDisplay" style="height: auto; margin-top: 50px;">?</div>
+                <div class="text-center">
+                    <button class="game-button" onclick="rollDice()">Roll Dice!</button>
+                </div>
+                <div class="status-text" id="diceStatus">Click 'Roll Dice!' to begin.</div>
+            `;
+        }
+        function rollDice() {
+            if (diceInterval) clearInterval(diceInterval);
+            const display = document.getElementById('diceDisplay');
+            const status = document.getElementById('diceStatus');
+            
+            display.classList.add('flipping'); // Reusing the flipping animation style
+            status.textContent = 'Rolling...';
+
+            let rollCount = 0;
+            diceInterval = setInterval(() => {
+                const face = diceFaces[Math.floor(Math.random() * 6)];
+                display.textContent = face;
+                rollCount++;
+
+                if (rollCount > 15) {
+                    clearInterval(diceInterval);
+                    display.classList.remove('flipping');
+                    const result = Math.floor(Math.random() * 6) + 1;
+                    display.textContent = diceFaces[result - 1];
+                    status.textContent = `You rolled a ${result}!`;
+                }
+            }, 100);
+        }
+
+        // --- COIN FLIP ---
+        const coinFaces = { 0: 'HEADS', 1: 'TAILS' };
+        const coinEmojis = { 0: '💰', 1: '🪙' };
+
+        function initCoinFlip() {
+            gameContent.innerHTML = `
+                <div class="game-title">Coin Flip</div>
+                <div class="status-text" id="coinStatus">Choose Heads or Tails!</div>
+                <div class="coin-display" id="coinDisplay"></div>
+                <div class="text-center">
+                    <button class="game-button" onclick="startCoinFlip(0)">Heads</button>
+                    <button class="game-button" onclick="startCoinFlip(1)">Tails</button>
+                </div>
+                <div class="status-text" id="coinResult"></div>
+            `;
+            document.getElementById('coinDisplay').textContent = coinEmojis[0];
+        }
+
+        function startCoinFlip(playerChoice) {
+            if (coinInterval) clearInterval(coinInterval);
+            const display = document.getElementById('coinDisplay');
+            const status = document.getElementById('coinStatus');
+            const resultElement = document.getElementById('coinResult');
+
+            status.textContent = 'Flipping...';
+            resultElement.textContent = '';
+            display.classList.add('flipping');
+
+            let flipCount = 0;
+            coinInterval = setInterval(() => {
+                const face = Math.floor(Math.random() * 2);
+                display.textContent = coinEmojis[face];
+                flipCount++;
+
+                if (flipCount > 20) {
+                    clearInterval(coinInterval);
+                    display.classList.remove('flipping');
+                    const finalResult = Math.floor(Math.random() * 2);
+                    display.textContent = coinEmojis[finalResult];
+                    
+                    if (playerChoice === finalResult) {
+                        status.textContent = `You Win! It was ${coinFaces[finalResult]} ${coinEmojis[finalResult]}!`;
+                    } else {
+                        status.textContent = `You Lose! It was ${coinFaces[finalResult]} ${coinEmojis[finalResult]}.`;
+                    }
+                }
+            }, 100);
+        }
+
+        // --- SECRET BOX (MODIFIED) ---
+        function initSecretBox() {
+            // Generate the image gallery HTML
+            const galleryHTML = SECRET_IMAGES.map((src, index) => `
+                <div class="image-placeholder" onclick="openFullscreenImage('${src}')">
+                    <img src="${src}" alt="Secret Image ${index + 1}" 
+                        onerror="this.onerror=null; this.alt='Image ${index + 1} Failed'; this.style.cssText='width: 100%; height: 100%; object-fit: contain; background-color: #4a148c; color: white; display: flex; align-items: center; justify-content: center;'"
+                    />
+                </div>
+            `).join('');
+
+            gameContent.innerHTML = `
+                <div class="game-title">The Secret Box</div>
+                <div class="password-container">
+                    <p class="status-text">Enter the Secret Code to proceed:</p>
+                    <input type="password" id="secretPassword" class="password-input" placeholder="Enter Code">
+                    <button class="game-button" onclick="checkSecretPassword()">Unlock</button>
+                    <div id="secretMessage" class="status-text" style="color: #e74c3c;"></div>
+                </div>
+                <div id="secretContent" class="secret-content" style="display: none;">
+                    <h4>🔓 Authorized Access Granted 🔓</h4>
+                    <p>Click any image to view it full-screen.</p>
+                    <div class="gallery-grid">
+                        ${galleryHTML}
+                    </div>
+                </div>
+            `;
+            document.getElementById('secretPassword').focus();
+        }
+
+        function checkSecretPassword() {
+            const input = document.getElementById('secretPassword');
+            const message = document.getElementById('secretMessage');
+            const content = document.getElementById('secretContent');
+            
+            if (input.value === SECRET_PASSWORD) {
+                message.textContent = 'Access granted! Welcome!';
+                message.style.color = '#2ecc71';
+                content.style.display = 'block';
+                input.disabled = true;
+                // Add a small delay to focus on the content
+                setTimeout(() => content.scrollIntoView({ behavior: 'smooth' }), 300);
+            } else {
+                message.textContent = 'Incorrect Code. Access Denied.';
+                message.style.color = '#e74c3c';
+                content.style.display = 'none';
+                input.value = '';
+                input.focus();
+            }
+        }
+    </script>
+</body>
+</html>
